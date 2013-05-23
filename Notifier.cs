@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Text;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
+using SkypeNotifier.Digest;
 
 namespace SkypeNotifier
 {
@@ -27,51 +26,54 @@ namespace SkypeNotifier
         public SerializableDictionary<long, long> LastContactIds { get; set; }
     }
 
-    public class SettingsManager
+    public class SkypeNotifier
     {
-        #region singleton
-        private static SettingsManager instance;
+        #region singleton&init
+        private static SkypeNotifier instance;
 
-        private SettingsManager() { }
+        private SkypeNotifier() { }
 
-        public static SettingsManager Instance
+        public static SkypeNotifier Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new SettingsManager();
+                    instance = new SkypeNotifier();
                     instance.Init();
                 }
                 return instance;
             }
         }
-        #endregion
-
-        Dictionary<long, SkypeContact> allContacts = new Dictionary<long, SkypeContact>();
-        Dictionary<long, SkypeChat> allChats = new Dictionary<long, SkypeChat>();
-      
-        DAL dal = new DAL();
-
         void Init()
         {
             dal.GetAllContacts().OrderBy(contact => contact.DisplayName).ToList().ForEach(contact => allContacts.Add(contact.ID, contact));
             dal.GetAllChats().OrderBy(chat => chat.DisplayName).ToList().ForEach(chat => allChats.Add(chat.ID, chat));
             LoadSettings();
-            CreateDigest(true);
+            //TODO: this is little trick how ot NOT send all data from first load (last message ids are saved after digest is created)
+            digestProvider.CreateDigest(Settings.SubscribedChats, Settings.SubscribedContacts);
+            SaveSettings();
         }
-        
+        #endregion
+
+        #region fields
+        Dictionary<long, SkypeContact> allContacts = new Dictionary<long, SkypeContact>();
+        Dictionary<long, SkypeChat> allChats = new Dictionary<long, SkypeChat>();
+      
+        DAL dal = new DAL();
+
+        IDigestProvider digestProvider = new HtmlDigestProvider(); //TODO: choose provider from list
+        #endregion
+
+        #region timer
         private Timer timer = null;
         public void StartTimer()
         {
             timer = new Timer(state =>
             {
-                string digest = CreateDigest();
+                string digest = digestProvider.CreateDigest(Settings.SubscribedChats, Settings.SubscribedContacts);
 
-                if (!string.IsNullOrWhiteSpace(digest))
-                {
-                    MailSender.SendEmail(Settings.Email, digest);
-                }
+              
 
             },null,1000, Settings.Timer*1000);
         }
@@ -83,7 +85,9 @@ namespace SkypeNotifier
                 timer = null;
             }
         }
+        #endregion
 
+        #region settings
         private const string settingsFile = "settings.xml";
         public SettingsData Settings { get; set; }
 
@@ -123,7 +127,9 @@ namespace SkypeNotifier
             }
             
         }
+        #endregion
 
+        #region public methods
         public List<SkypeChat> GetAllChats()
         {
             return allChats.Select(pair => pair.Value).ToList();
@@ -154,60 +160,6 @@ namespace SkypeNotifier
             return dal.GetAllMessages(lastMessageId, contact).OrderBy(message => message.Time).ToList();
         }
 
-        public string CreateDigest(bool doNotGenerate = false)
-        {
-            StringBuilder digest = new StringBuilder();
-
-            bool needToAddHeader = true;
-
-            Settings.SubscribedChats.ForEach(chat =>
-            {
-                List<SkypeMessage> messages = GetMessagesFromChat(chat);
-                if (messages.Count > 0)
-                {
-                    if (needToAddHeader)
-                    {
-                        digest.AppendLine("<h2>Chats:</h2>");
-                        digest.AppendLine("<hr/>");
-                        needToAddHeader = false;
-                    }
-
-                    Settings.LastChatIds[chat.ID] = messages.Last().ID;
-                    if (!doNotGenerate)
-                    {
-                        digest.AppendLine(string.Format("<h3>{0}:</h3>", chat.DisplayName));
-                        messages.ForEach(message => digest.AppendLine(string.Format("{0}<br />", message.ToString())));
-                        digest.AppendLine("<br />");
-                    }
-                }
-            });
-
-            needToAddHeader = true;
-            
-            Settings.SubscribedContacts.ForEach(contact =>
-            {
-                List<SkypeMessage> messages = GetMessagesFromContact(contact);
-                if (messages.Count > 0)
-                {
-                    if (needToAddHeader)
-                    {
-                        digest.AppendLine("<h2>Contacts:</h2>");
-                        digest.AppendLine("<hr/>");
-                        needToAddHeader = false;
-                    }
-                    Settings.LastContactIds[contact.ID] = messages.Last().ID;
-                    if (!doNotGenerate)
-                    {
-                        digest.AppendLine(string.Format("<h3>{0}:</h3>", contact.DisplayName));
-                        messages.ForEach(message => digest.AppendLine(string.Format("{0}<br />", message.ToString())));
-                        digest.AppendLine("<br />");
-                    }
-                }
-            });
-            
-            SaveSettings();
-
-            return digest.ToString();
-        }
+        #endregion
     }
 }

@@ -6,9 +6,9 @@ namespace SkypeNotifier
     {
         private static void Main(string[] args)
         {
-            SettingsManager.Instance.StartTimer();
+            SkypeNotifier.Instance.StartTimer();
             Application.Run(new Settings());
-            SettingsManager.Instance.StopTimer();
+            SkypeNotifier.Instance.StopTimer();
         }
     }
 }

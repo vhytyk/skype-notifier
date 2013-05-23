@@ -10,12 +10,12 @@ namespace SkypeNotifier
         public Settings()
         {
             InitializeComponent();
-            RefreshListBox(listBoxAllChats, SettingsManager.Instance.GetAllChats());
-            RefreshListBox(listBoxSelectedChats, SettingsManager.Instance.Settings.SubscribedChats);
-            RefreshListBox(listBoxAllContacts, SettingsManager.Instance.GetAllContacts());
-            RefreshListBox(listBoxSelectedContacts, SettingsManager.Instance.Settings.SubscribedContacts);
-            textBoxEmail.Text = SettingsManager.Instance.Settings.Email;
-            textBoxInterval.Text = SettingsManager.Instance.Settings.Timer.ToString();
+            RefreshListBox(listBoxAllChats, SkypeNotifier.Instance.GetAllChats());
+            RefreshListBox(listBoxSelectedChats, SkypeNotifier.Instance.Settings.SubscribedChats);
+            RefreshListBox(listBoxAllContacts, SkypeNotifier.Instance.GetAllContacts());
+            RefreshListBox(listBoxSelectedContacts, SkypeNotifier.Instance.Settings.SubscribedContacts);
+            textBoxEmail.Text = SkypeNotifier.Instance.Settings.Email;
+            textBoxInterval.Text = SkypeNotifier.Instance.Settings.Timer.ToString();
         }
         private void RefreshListBox(ListBox listBox, IEnumerable collection)
         {
@@ -27,18 +27,18 @@ namespace SkypeNotifier
         }
         private void buttonSave_Click(object sender, EventArgs e)
         {
-            SettingsManager.Instance.SaveSettings();
+            SkypeNotifier.Instance.SaveSettings();
             buttonSave.Enabled = false;
         }
 
         private void buttonAddChat_Click(object sender, EventArgs e)
         {
             SkypeChat selectedChat = listBoxAllChats.SelectedItem as SkypeChat;
-            if (selectedChat != null && SettingsManager.Instance.Settings.SubscribedChats.Find(chat => chat.ID == selectedChat.ID) == null)
+            if (selectedChat != null && SkypeNotifier.Instance.Settings.SubscribedChats.Find(chat => chat.ID == selectedChat.ID) == null)
             {
-                SettingsManager.Instance.Settings.SubscribedChats.Add(selectedChat);
+                SkypeNotifier.Instance.Settings.SubscribedChats.Add(selectedChat);
                 listBoxSelectedChats.Items.Add(selectedChat);
-                RefreshListBox(listBoxSelectedChats, SettingsManager.Instance.Settings.SubscribedChats);
+                RefreshListBox(listBoxSelectedChats, SkypeNotifier.Instance.Settings.SubscribedChats);
                 buttonSave.Enabled = true;
 
             }
@@ -49,13 +49,13 @@ namespace SkypeNotifier
             SkypeChat selectedChat = listBoxSelectedChats.SelectedItem as SkypeChat;
             if (selectedChat != null)
             {
-                SkypeChat chatToRemove = SettingsManager.Instance.Settings.SubscribedChats.Find(chat => chat.ID == selectedChat.ID);
+                SkypeChat chatToRemove = SkypeNotifier.Instance.Settings.SubscribedChats.Find(chat => chat.ID == selectedChat.ID);
                 if (chatToRemove != null)
                 {
-                    SettingsManager.Instance.Settings.SubscribedChats.Remove(chatToRemove);
+                    SkypeNotifier.Instance.Settings.SubscribedChats.Remove(chatToRemove);
                 }
                 listBoxSelectedChats.Items.Remove(selectedChat);
-                RefreshListBox(listBoxSelectedChats, SettingsManager.Instance.Settings.SubscribedChats);
+                RefreshListBox(listBoxSelectedChats, SkypeNotifier.Instance.Settings.SubscribedChats);
                 buttonSave.Enabled = true;
 
             }
@@ -64,11 +64,11 @@ namespace SkypeNotifier
         private void buttonAddContact_Click(object sender, EventArgs e)
         {
             SkypeContact selectedContact = listBoxAllContacts.SelectedItem as SkypeContact;
-            if (selectedContact != null && SettingsManager.Instance.Settings.SubscribedContacts.Find(contact => contact.ID == selectedContact.ID) == null)
+            if (selectedContact != null && SkypeNotifier.Instance.Settings.SubscribedContacts.Find(contact => contact.ID == selectedContact.ID) == null)
             {
-                SettingsManager.Instance.Settings.SubscribedContacts.Add(selectedContact);
+                SkypeNotifier.Instance.Settings.SubscribedContacts.Add(selectedContact);
                 listBoxSelectedContacts.Items.Add(selectedContact);
-                RefreshListBox(listBoxSelectedContacts, SettingsManager.Instance.Settings.SubscribedContacts);
+                RefreshListBox(listBoxSelectedContacts, SkypeNotifier.Instance.Settings.SubscribedContacts);
                 buttonSave.Enabled = true;
 
             }
@@ -79,13 +79,13 @@ namespace SkypeNotifier
             SkypeContact selectedContact = listBoxSelectedContacts.SelectedItem as SkypeContact;
             if (selectedContact != null)
             {
-                SkypeContact contactToRemove = SettingsManager.Instance.Settings.SubscribedContacts.Find(contact => contact.ID == selectedContact.ID);
+                SkypeContact contactToRemove = SkypeNotifier.Instance.Settings.SubscribedContacts.Find(contact => contact.ID == selectedContact.ID);
                 if (contactToRemove != null)
                 {
-                    SettingsManager.Instance.Settings.SubscribedContacts.Remove(contactToRemove);
+                    SkypeNotifier.Instance.Settings.SubscribedContacts.Remove(contactToRemove);
                 }
                 listBoxSelectedContacts.Items.Remove(selectedContact);
-                RefreshListBox(listBoxSelectedContacts, SettingsManager.Instance.Settings.SubscribedContacts);
+                RefreshListBox(listBoxSelectedContacts, SkypeNotifier.Instance.Settings.SubscribedContacts);
                 buttonSave.Enabled = true;
 
             }
@@ -93,7 +93,7 @@ namespace SkypeNotifier
 
         private void textBoxEmail_TextChanged(object sender, EventArgs e)
         {
-            SettingsManager.Instance.Settings.Email = textBoxEmail.Text;
+            SkypeNotifier.Instance.Settings.Email = textBoxEmail.Text;
             buttonSave.Enabled = true;
         }
 
@@ -102,7 +102,7 @@ namespace SkypeNotifier
             int interval = 10;
             if (int.TryParse(textBoxInterval.Text, out interval))
             {
-                SettingsManager.Instance.Settings.Timer = interval;
+                SkypeNotifier.Instance.Settings.Timer = interval;
                 buttonSave.Enabled = true;
             }
             
