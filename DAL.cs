@@ -52,8 +52,8 @@ namespace SkypeNotifier
                     result.Add(new SkypeContact()
                     {
                         ID = reader.GetInt64(reader.GetOrdinal("id")),
-                        Name = (skypename == null) ? string.Empty : skypename.ToString(),
-                        DisplayName = (displayName == null) ? string.Empty : displayName.ToString()
+                        Name = (skypename == null || skypename == DBNull.Value) ? string.Empty : skypename.ToString(),
+                        DisplayName = (displayName == null || displayName == DBNull.Value) ? string.Empty : displayName.ToString()
                     });
                 }
             });
@@ -73,7 +73,7 @@ namespace SkypeNotifier
                         ID = reader.GetInt64(reader.GetOrdinal("id")),
                         Name = reader.GetString(reader.GetOrdinal("name")),
                         DisplayName = reader.GetString(reader.GetOrdinal("friendlyname")),
-                        DialogPartner = (dialogPartner == null) ? string.Empty : dialogPartner.ToString()
+                        DialogPartner = (dialogPartner == null || dialogPartner == DBNull.Value) ? string.Empty : dialogPartner.ToString()
                     });
                 }
             });
@@ -116,8 +116,8 @@ namespace SkypeNotifier
                         {
                             ID = id,
                             Author = from,
-                            Message = (body == null) ? string.Empty : body.ToString(),
-                            PointedPerson = (identities == null) ? string.Empty : identities.ToString(),
+                            Message = (body == null || body == DBNull.Value) ? string.Empty : body.ToString(),
+                            PointedPerson = (identities == null || identities == DBNull.Value) ? string.Empty : identities.ToString(),
                             Chat = chat,
                             Time = time,
                             Type = (MessageType)messageType
