@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Windows.Forms;
-using System.IO;
+using System.Linq;
 
 namespace SkypeNotifier
 {
@@ -10,12 +10,20 @@ namespace SkypeNotifier
         public Settings()
         {
             InitializeComponent();
-            RefreshListBox(listBoxAllChats, SkypeNotifier.Instance.GetAllChats());
-            RefreshListBox(listBoxSelectedChats, SkypeNotifier.Instance.Settings.SubscribedChats);
-            RefreshListBox(listBoxAllContacts, SkypeNotifier.Instance.GetAllContacts());
-            RefreshListBox(listBoxSelectedContacts, SkypeNotifier.Instance.Settings.SubscribedContacts);
-            textBoxEmail.Text = SkypeNotifier.Instance.Settings.Email;
-            textBoxInterval.Text = SkypeNotifier.Instance.Settings.Timer.ToString();
+            Init();
+            settingsGrid.SelectedObject = SkypeNotifier.Instance.Settings;
+
+        }
+        void Init()
+        {
+            if (SkypeNotifier.Instance.IsConnected)
+            {
+                RefreshListBox(listBoxAllChats, SkypeNotifier.Instance.GetAllChats());
+                RefreshListBox(listBoxSelectedChats, SkypeNotifier.Instance.Settings.SubscribedChats);
+                RefreshListBox(listBoxAllContacts, SkypeNotifier.Instance.GetAllContacts());
+                RefreshListBox(listBoxSelectedContacts, SkypeNotifier.Instance.Settings.SubscribedContacts);
+            }
+            
         }
         private void RefreshListBox(ListBox listBox, IEnumerable collection)
         {
@@ -25,6 +33,8 @@ namespace SkypeNotifier
                 listBox.Items.Add(item);
             }
         }
+
+        #region event handlers
         private void buttonSave_Click(object sender, EventArgs e)
         {
             SkypeNotifier.Instance.SaveSettings();
@@ -91,43 +101,54 @@ namespace SkypeNotifier
             }
         }
 
-        private void textBoxEmail_TextChanged(object sender, EventArgs e)
-        {
-            SkypeNotifier.Instance.Settings.Email = textBoxEmail.Text;
-            buttonSave.Enabled = true;
-        }
-
-        private void textBoxInterval_TextChanged(object sender, EventArgs e)
-        {
-            int interval = 10;
-            if (int.TryParse(textBoxInterval.Text, out interval))
-            {
-                SkypeNotifier.Instance.Settings.Timer = interval;
-                buttonSave.Enabled = true;
-            }
-            
-        }
-
+        private bool canCancel = false;
         private void Settings_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (!canCancel)
             {
                 e.Cancel = true;
-                this.Hide();
+                Hide();
             }
         }
 
         private void notifyIcon1_DoubleClick(object sender, EventArgs e)
         {
-            this.Show();
+            Show();
         }
 
-        private bool canCancel = false;
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             canCancel = true;
             Close();
         }
+
+        private void settingsGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            buttonSave.Enabled = true;
+            if (e.ChangedItem.PropertyDescriptor.Name == "DbPath")
+            {
+                SkypeNotifier.Instance.SaveSettings();
+                SkypeNotifier.Instance.Init();
+                Init();
+            }
+            if (e.ChangedItem.PropertyDescriptor.Name == "Timer")
+            {
+                SkypeNotifier.Instance.StopTimer();
+                SkypeNotifier.Instance.StartTimer();
+            }
+        }
+        #endregion
+
+        private void textBoxFilterChats_KeyUp(object sender, KeyEventArgs e)
+        {
+            RefreshListBox(listBoxAllChats, SkypeNotifier.Instance.GetAllChats().Where(chat => chat.DisplayName.ToLower().Contains(textBoxFilterChats.Text.ToLower())));
+        }
+
+        private void textBoxFilterContact_KeyUp(object sender, KeyEventArgs e)
+        {
+            RefreshListBox(listBoxAllContacts, SkypeNotifier.Instance.GetAllContacts().Where(contact => contact.DisplayName.ToLower().Contains(textBoxFilterContact.Text.ToLower())));
+        }
+
 
     }
 }

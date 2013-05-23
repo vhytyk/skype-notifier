@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using System.Configuration;
 
 namespace SkypeNotifier
 {
@@ -8,9 +7,9 @@ namespace SkypeNotifier
     {
         public static void SendEmail(string email, string emailMessage)
         {
-            var fromAddress = new MailAddress(ConfigurationManager.AppSettings["FromAddress"]);
+            var fromAddress = new MailAddress(SkypeNotifier.Instance.Settings.GmailAccount);
             var toAddress = new MailAddress(email);
-            string fromPassword = ConfigurationManager.AppSettings["FromPassword"];
+            string fromPassword = SkypeNotifier.Instance.Settings.GmailPassword;
             const string subject = "Skype notification digest";
             string body = emailMessage;
 

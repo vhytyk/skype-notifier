@@ -9,8 +9,7 @@ namespace SkypeNotifier
 {
     public class DAL
     {
-        private const string DBPathConfigKey = "DBPath";
-        private string connectionString = string.Format(@"Data Source={0};Version=3;", ConfigurationManager.AppSettings[DBPathConfigKey]);
+        private string connectionString = string.Format(@"Data Source={0};Version=3;", SkypeNotifier.Instance.Settings.DbPath);
 
 
         #region helpers
@@ -21,9 +20,9 @@ namespace SkypeNotifier
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
             return dtDateTime;
         }
+
         private void RunReader(string sql, Action<SQLiteDataReader> action)
         {
-            
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
@@ -59,6 +58,7 @@ namespace SkypeNotifier
             });
             return result;
         }
+
         public List<SkypeChat> GetAllChats()
         {
             List<SkypeChat> result = new List<SkypeChat>();
@@ -67,18 +67,19 @@ namespace SkypeNotifier
                 while (reader.Read())
                 {
                     object dialogPartner = reader.GetValue(reader.GetOrdinal("dialog_partner"));
+                    object friendlyName = reader.GetValue(reader.GetOrdinal("friendlyname"));
                     result.Add(new SkypeChat()
                     {
-
                         ID = reader.GetInt64(reader.GetOrdinal("id")),
                         Name = reader.GetString(reader.GetOrdinal("name")),
-                        DisplayName = reader.GetString(reader.GetOrdinal("friendlyname")),
+                        DisplayName = (friendlyName == null || friendlyName == DBNull.Value) ? string.Empty : friendlyName.ToString(),
                         DialogPartner = (dialogPartner == null || dialogPartner == DBNull.Value) ? string.Empty : dialogPartner.ToString()
                     });
                 }
             });
             return result;
         }
+
         public List<SkypeMessage> GetAllMessages(long fromId, SkypeContact contact)
         {
             List<SkypeMessage> messages = new List<SkypeMessage>();
@@ -93,6 +94,7 @@ namespace SkypeNotifier
 
             return messages.OrderBy(m => m.Time).ToList();
         }
+
         public List<SkypeMessage> GetAllMessages(long fromId, SkypeChat chat)
         {
             List<SkypeMessage> result = new List<SkypeMessage>();
@@ -128,6 +130,20 @@ namespace SkypeNotifier
                 });
 
             return result;
+        }
+
+        internal bool IsConnected()
+        {
+            try
+            {
+                RunReader("select * from contacts", reader => { reader.Read(); });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                //TODO: exception
+            }
+            return false;
         }
     }
 }
