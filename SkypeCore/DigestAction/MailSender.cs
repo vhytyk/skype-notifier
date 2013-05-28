@@ -1,15 +1,15 @@
 ﻿using System.Net;
 using System.Net.Mail;
 
-namespace SkypeNotifier
+namespace SkypeCore.DigestAction
 {
-    public class MailSender
+    public class GMailSender
     {
-        public static void SendEmail(string email, string emailMessage)
+        public static void SendEmail(string email, string emailMessage, string gmailAccount, string gmailPassword)
         {
-            var fromAddress = new MailAddress(SkypeNotifier.Instance.Settings.GmailAccount);
+            var fromAddress = new MailAddress(gmailAccount);
             var toAddress = new MailAddress(email);
-            string fromPassword = SkypeNotifier.Instance.Settings.GmailPassword;
+            string fromPassword = gmailPassword;
             const string subject = "Skype notification digest";
             string body = emailMessage;
 

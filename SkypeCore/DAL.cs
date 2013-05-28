@@ -5,12 +5,11 @@ using System.Text;
 using System.Data.SQLite;
 using System.Configuration;
 
-namespace SkypeNotifier
+namespace SkypeCore
 {
-    public class DAL
+    public class SkypeDAL
     {
-        private string connectionString = string.Format(@"Data Source={0};Version=3;", SkypeNotifier.Instance.Settings.DbPath);
-
+        public static string ConnectionString = string.Empty;
 
         #region helpers
         private DateTime UnixTimeStampToDateTime(double unixTimeStamp)
@@ -23,7 +22,7 @@ namespace SkypeNotifier
 
         private void RunReader(string sql, Action<SQLiteDataReader> action)
         {
-            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            using (SQLiteConnection connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -132,7 +131,7 @@ namespace SkypeNotifier
             return result;
         }
 
-        internal bool IsConnected()
+        public bool IsConnected()
         {
             try
             {

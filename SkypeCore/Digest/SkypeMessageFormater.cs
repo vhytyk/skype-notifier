@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SkypeNotifier
+namespace SkypeNotifier.Digest
 {
-    class List
+    public class SkypeMessageFormater
     {
+
     }
 }

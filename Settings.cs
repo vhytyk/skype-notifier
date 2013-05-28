@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Windows.Forms;
 using System.Linq;
+using SkypeCore;
 
 namespace SkypeNotifier
 {
@@ -37,7 +38,10 @@ namespace SkypeNotifier
         #region event handlers
         private void buttonSave_Click(object sender, EventArgs e)
         {
+            SkypeNotifier.Instance.StopTimer();
             SkypeNotifier.Instance.SaveSettings();
+            SkypeNotifier.Instance.InitializeDigest();
+            SkypeNotifier.Instance.StartTimer();
             buttonSave.Enabled = false;
         }
 

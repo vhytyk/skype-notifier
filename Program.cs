@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System;
 using System.Threading;
 using System.Diagnostics;
+using SkypeCore;
 
 namespace SkypeNotifier
 {

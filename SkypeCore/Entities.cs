@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SkypeNotifier
+namespace SkypeCore
 {
     public class SkypeContact
     {

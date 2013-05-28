@@ -4,9 +4,9 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
-using SkypeNotifier.Digest;
-using SkypeNotifier.Action;
-using SkypeNotifier.DigestAction;
+using SkypeCore;
+using SkypeCore.Digest;
+using SkypeCore.DigestAction;
 
 namespace SkypeNotifier
 {
@@ -33,26 +33,54 @@ namespace SkypeNotifier
         public void Init()
         {
             LoadSettings();
-            dal = new DAL();
+            SkypeDAL.ConnectionString = string.Format(@"Data Source={0};Version=3;", Settings.DbPath);
+            dal = new SkypeDAL();
             IsConnected = dal.IsConnected();
             if (IsConnected)
             {
+                InitializeDigest();
                 dal.GetAllContacts().OrderBy(contact => contact.DisplayName).ToList().ForEach(contact => allContacts.Add(contact.ID, contact));
                 dal.GetAllChats().OrderBy(chat => chat.DisplayName).ToList().ForEach(chat => allChats.Add(chat.ID, chat));
-                //TODO: this is little trick how ot NOT send all data from first load (last message ids are saved after digest is created)
-                digestProvider.CreateDigest(Settings.SubscribedChats, Settings.SubscribedContacts);
-                SaveSettings();
+               
             }
+        }
+        public void InitializeDigest()
+        {
+            digestProvider = new HtmlDigestProvider();
+
+            digestProvider.Initialize(() =>
+            {
+                DigestFilter filter = new DigestFilter();
+                filter.StartChatIds = Settings.LastChatIds;
+                filter.StartContactIds = Settings.LastContactIds;
+                return filter;
+            },
+                result =>
+                {
+                    result.LastGeneratedChatIds.ToList().ForEach(pair =>
+                    {
+                        Settings.LastChatIds[pair.Key] = pair.Value;
+                    });
+                    result.LastGeneratedContactIds.ToList().ForEach(pair =>
+                    {
+                        Settings.LastContactIds[pair.Key] = pair.Value;
+                    });
+                     
+                    SaveSettings();
+                });
+            digestActionProvider = new GMailActionProvider(Settings.Email, Settings.GmailAccount, Settings.GmailPassword);
+            //TODO: this is little trick how ot NOT send all data from first load (last message ids are saved after digest is created)
+            digestProvider.GenerateDigest(Settings.SubscribedChats, Settings.SubscribedContacts);
         }
         #endregion
 
         #region fields
 
-        private DAL dal = null;
-        Dictionary<long, SkypeContact> allContacts = new Dictionary<long, SkypeContact>();
-        Dictionary<long, SkypeChat> allChats = new Dictionary<long, SkypeChat>();
-        IDigestProvider digestProvider = new HtmlDigestProvider(); //TODO: choose provider from list
-        IDigestActionProvider digestActionProvider   = new MailActionProvider();
+        private SkypeDAL dal = null;
+        private Dictionary<long, SkypeContact> allContacts = new Dictionary<long, SkypeContact>();
+        private Dictionary<long, SkypeChat> allChats = new Dictionary<long, SkypeChat>();
+        private IDigestProvider<string> digestProvider = null;
+        private IDigestActionProvider<string> digestActionProvider = null;
         #endregion
 
         #region timer
@@ -63,10 +91,10 @@ namespace SkypeNotifier
             {
                 if (IsConnected)
                 {
-                    digestActionProvider.Execute(digestProvider);
+                    digestActionProvider.Execute(digestProvider, Settings.SubscribedChats, Settings.SubscribedContacts);
                 }
 
-            },null,1000, Settings.Timer*1000);
+            },null,5000, Settings.Timer*1000);
         }
         public void StopTimer()
         {
@@ -140,18 +168,7 @@ namespace SkypeNotifier
             return (allContacts.ContainsKey(id)) ? allContacts[id] : new SkypeContact() { DisplayName = "<Undefined contact>" };
         }
 
-        public List<SkypeMessage> GetMessagesFromChat(SkypeChat chat)
-        {
-            long lastMessageId = Settings.LastChatIds.ContainsKey(chat.ID) ? Settings.LastChatIds[chat.ID] : -1;
-            return dal.GetAllMessages(lastMessageId, chat).OrderBy(message => message.Time).ToList();
-        }
-
-        public List<SkypeMessage> GetMessagesFromContact(SkypeContact contact)
-        {
-            long lastMessageId = Settings.LastContactIds.ContainsKey(contact.ID) ? Settings.LastContactIds[contact.ID] : -1;
-            return dal.GetAllMessages(lastMessageId, contact).OrderBy(message => message.Time).ToList();
-        }
-
+      
         #endregion
     }
 }
