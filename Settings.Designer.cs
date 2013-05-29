@@ -35,27 +35,27 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.settingsGrid = new System.Windows.Forms.PropertyGrid();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.panel4 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.textBoxFilterContact = new System.Windows.Forms.TextBox();
             this.buttonRemoveContact = new System.Windows.Forms.Button();
             this.buttonAddContact = new System.Windows.Forms.Button();
             this.listBoxSelectedContacts = new System.Windows.Forms.ListBox();
             this.listBoxAllContacts = new System.Windows.Forms.ListBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.textBoxFilterChats = new System.Windows.Forms.TextBox();
             this.buttonRemoveChat = new System.Windows.Forms.Button();
             this.buttonAddChat = new System.Windows.Forms.Button();
             this.listBoxSelectedChats = new System.Windows.Forms.ListBox();
             this.listBoxAllChats = new System.Windows.Forms.ListBox();
             this.buttonExit = new System.Windows.Forms.Button();
-            this.textBoxFilterChats = new System.Windows.Forms.TextBox();
-            this.textBoxFilterContact = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -107,17 +107,6 @@
             this.tabControl1.Size = new System.Drawing.Size(583, 325);
             this.tabControl1.TabIndex = 8;
             // 
-            // tabPage2
-            // 
-            this.tabPage2.Controls.Add(this.panel4);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(575, 299);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Subscriptions";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.settingsGrid);
@@ -137,6 +126,17 @@
             this.settingsGrid.Size = new System.Drawing.Size(569, 293);
             this.settingsGrid.TabIndex = 2;
             this.settingsGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.settingsGrid_PropertyValueChanged);
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.panel4);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(575, 299);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Subscriptions";
+            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // panel4
             // 
@@ -160,6 +160,14 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(569, 148);
             this.panel3.TabIndex = 7;
+            // 
+            // textBoxFilterContact
+            // 
+            this.textBoxFilterContact.Location = new System.Drawing.Point(0, 3);
+            this.textBoxFilterContact.Name = "textBoxFilterContact";
+            this.textBoxFilterContact.Size = new System.Drawing.Size(235, 20);
+            this.textBoxFilterContact.TabIndex = 8;
+            this.textBoxFilterContact.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBoxFilterContact_KeyUp);
             // 
             // buttonRemoveContact
             // 
@@ -217,6 +225,14 @@
             this.panel1.Size = new System.Drawing.Size(569, 142);
             this.panel1.TabIndex = 6;
             // 
+            // textBoxFilterChats
+            // 
+            this.textBoxFilterChats.Location = new System.Drawing.Point(0, 3);
+            this.textBoxFilterChats.Name = "textBoxFilterChats";
+            this.textBoxFilterChats.Size = new System.Drawing.Size(235, 20);
+            this.textBoxFilterChats.TabIndex = 7;
+            this.textBoxFilterChats.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBoxFilterChats_KeyUp);
+            // 
             // buttonRemoveChat
             // 
             this.buttonRemoveChat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -272,22 +288,6 @@
             this.buttonExit.UseVisualStyleBackColor = true;
             this.buttonExit.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
-            // textBoxFilterChats
-            // 
-            this.textBoxFilterChats.Location = new System.Drawing.Point(0, 3);
-            this.textBoxFilterChats.Name = "textBoxFilterChats";
-            this.textBoxFilterChats.Size = new System.Drawing.Size(235, 20);
-            this.textBoxFilterChats.TabIndex = 7;
-            this.textBoxFilterChats.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBoxFilterChats_KeyUp);
-            // 
-            // textBoxFilterContact
-            // 
-            this.textBoxFilterContact.Location = new System.Drawing.Point(0, 3);
-            this.textBoxFilterContact.Name = "textBoxFilterContact";
-            this.textBoxFilterContact.Size = new System.Drawing.Size(235, 20);
-            this.textBoxFilterContact.TabIndex = 8;
-            this.textBoxFilterContact.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBoxFilterContact_KeyUp);
-            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -304,8 +304,8 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Settings_FormClosing);
             this.contextMenuStrip1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
