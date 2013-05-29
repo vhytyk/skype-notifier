@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SkypeCore.MessagesFormatter;
 
 namespace SkypeCore.Digest
 {
@@ -20,10 +21,15 @@ namespace SkypeCore.Digest
         public DigestResult<string> GenerateDigest(List<SkypeChat> chats, List<SkypeContact> contacts)
         {
             StringBuilder digest = new StringBuilder();
+            
+            digest.Append("<html>");
 
             DigestFilter filter = _filterFunction != null ? _filterFunction() : null;
             DigestResult<string> result = new DigestResult<string>() { LastGeneratedChatIds = new SerializableDictionary<long, long>(), LastGeneratedContactIds = new SerializableDictionary<long, long>()};
+            
             bool needToAddHeader = true;
+            bool hasMessages = false;
+            IMessagesFormatter messagesFormatter = new HtmlMessagesFormatter(css => digest.AppendFormat("<head><style>{0}</style></head><body>", css));
 
             chats.ForEach(chat =>
             {
@@ -31,6 +37,7 @@ namespace SkypeCore.Digest
                 List<SkypeMessage> messages = _dal.GetAllMessages(lastChatId, chat).OrderBy(message => message.Time).ToList();
                 if (messages.Count > 0)
                 {
+                    hasMessages = true;
                     if (needToAddHeader)
                     {
                         digest.AppendLine("<h2>Chats:</h2>");
@@ -40,7 +47,7 @@ namespace SkypeCore.Digest
 
                     result.LastGeneratedChatIds[chat.ID] = messages.Last().ID;
                     digest.AppendLine(string.Format("<h3>{0}:</h3>", chat.DisplayName));
-                    messages.ForEach(message => digest.AppendLine(string.Format("{0}<br />", message.ToString())));
+                    digest.Append(messagesFormatter.FormatMessages(messages));
                     digest.AppendLine("<br />");
                 }
             });
@@ -53,6 +60,7 @@ namespace SkypeCore.Digest
                 List<SkypeMessage> messages = _dal.GetAllMessages(lastContactId, contact).OrderBy(message => message.Time).ToList();
                 if (messages.Count > 0)
                 {
+                    hasMessages = true;
                     if (needToAddHeader)
                     {
                         digest.AppendLine("<h2>Contacts:</h2>");
@@ -61,16 +69,20 @@ namespace SkypeCore.Digest
                     }
                     result.LastGeneratedContactIds[contact.ID] = messages.Last().ID;
                     digest.AppendLine(string.Format("<h3>{0}:</h3>", contact.DisplayName));
-                    messages.ForEach(message => digest.AppendLine(string.Format("{0}<br />", message.ToString())));
+                    digest.Append(messagesFormatter.FormatMessages(messages));
                     digest.AppendLine("<br />");
                 }
             });
 
-            result.Result = digest.ToString();
-
-            if (_resultAction != null)
+            digest.Append("</body></html>");
+            if (hasMessages)
             {
-                _resultAction(result);
+                result.Result = digest.ToString();
+
+                if (_resultAction != null)
+                {
+                    _resultAction(result);
+                }
             }
 
             return result;

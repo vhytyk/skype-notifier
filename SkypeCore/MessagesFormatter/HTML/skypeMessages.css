@@ -1,0 +1,41 @@
+﻿body {
+    font-size: 8pt;
+    font-family: Tahoma;
+}
+.dayHeader
+{
+    text-align: left;
+    font-weight: bold;
+    padding-left: 10px;
+    margin-top: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+    border-top: 1px solid #eee;
+}
+.conversation {
+    font-size: 8pt;
+}
+.messageRow 
+{
+    
+}
+.author 
+{
+    vertical-align: top;
+    text-align: left;
+    color: #009fff;
+    width: 60px;
+    padding-left: 10px;
+}
+.message 
+{
+    vertical-align: top;
+    padding-left: 10px;
+}
+.messageTime 
+{
+    vertical-align: top;
+    text-align: right;
+    color: #ccc;
+}
