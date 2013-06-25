@@ -170,7 +170,7 @@ namespace SkypeCore.MessagesFormatter
                     author = message.Author;
                 }
 
-                string skypeMessage = HttpUtility.HtmlEncode(message.Message).Replace("\r", "<br />");
+                string skypeMessage = message.Message.Replace("\r", "<br />").Replace("&apos;","'");
 
                 result.AppendFormat("<tr class='messageRow'><td class='message'>{0}</td><td class='messageTime'>{1}</td></tr>", skypeMessage, message.Time.ToShortTimeString().Replace(" ",""));
             });

@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Diagnostics;
 using SkypeCore;
+using SkypeCore.Log;
 
 namespace SkypeNotifier
 {
@@ -15,15 +16,23 @@ namespace SkypeNotifier
             Mutex mutex = new Mutex(true, AppDomain.CurrentDomain.BaseDirectory.Replace('\\', '_'));
             if (mutex.WaitOne(100))
             {
+                Logger.Instance.WriteMessage("Notifier started.");
                 SkypeNotifier.Instance.StartTimer();
+                AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+                Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
                 Application.Run(new Settings());
                 SkypeNotifier.Instance.StopTimer();
+                Logger.Instance.WriteMessage("Notifier halted.");
             }
             else
             {
                 try
                 {
-                    Win32.SetForegroundWindow(Process.GetProcessesByName("SkypeNotifier")[0].MainWindowHandle);
+                    Process[] allProcesses = Process.GetProcessesByName("SkypeNotifier");
+                    if (allProcesses.Length > 0)
+                    {
+                        Win32.SetForegroundWindow(allProcesses[0].MainWindowHandle);
+                    }
                     return;
                 }
                 catch
@@ -31,6 +40,17 @@ namespace SkypeNotifier
                 }
             }
             mutex.ReleaseMutex();
+        }
+
+        static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            Logger.Instance.WriteMessage(e.Exception.ToString());
+        }
+
+        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception ex = e.ExceptionObject as Exception;
+            Logger.Instance.WriteMessage((ex ?? new Exception("unhandled exception")).ToString());
         }
     }
 

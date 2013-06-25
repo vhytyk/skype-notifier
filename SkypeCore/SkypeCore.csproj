@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\3dParty\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="SQLite.Designer">
       <HintPath>..\3dParty\SQLite.Designer.dll</HintPath>
     </Reference>
@@ -57,10 +60,12 @@
     <Compile Include="Digest\DigestProvider.cs" />
     <Compile Include="Digest\HtmlDigestProvider.cs" />
     <Compile Include="Entities.cs" />
+    <Compile Include="Log\Logger.cs" />
     <Compile Include="MessagesFormatter\HTML\HtmlMessagesFormatter.cs" />
     <Compile Include="MessagesFormatter\MessagesFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerializableDictionary.cs" />
+    <Compile Include="UnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="MessagesFormatter\HTML\skypeMessages.css" />

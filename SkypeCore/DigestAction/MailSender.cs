@@ -26,7 +26,7 @@ namespace SkypeCore.DigestAction
             {
                 IsBodyHtml = true,
                 Subject = subject,
-                Body = WebUtility.HtmlDecode(body)
+                Body = body
             })
             {
                 smtp.Send(message);
